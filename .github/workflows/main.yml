@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          path: master
+          path: main
 
       - name: Set up Python
         uses: actions/setup-python@v2
