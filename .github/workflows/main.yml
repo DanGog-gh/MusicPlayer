@@ -12,7 +12,6 @@ on:
       - gh-pages
 
 jobs:
-  # Build job. Builds app for Android with Buildozer
   build-android:
     name: Build for Android
     runs-on: ubuntu-latest
@@ -47,7 +46,7 @@ jobs:
         id: buildozer
         with:
           repository_root: master
-          workdir: test_app
+          workdir: .
           buildozer_version: stable
 
       - name: Upload artifacts
