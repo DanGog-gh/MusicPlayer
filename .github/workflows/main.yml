@@ -14,33 +14,38 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # used to cache dependencies with a timeout
+      # Получение текущей даты для ключа кэширования
       - name: Get Date
         id: get-date
         run: |
           echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
         shell: bash
 
+      # Кэширование глобальной директории Buildozer
       - name: Cache Buildozer global directory
         uses: actions/cache@v2
         with:
           path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
+      # Кэширование директории .buildozer с учетом даты
       - uses: actions/cache@v2
         with:
           path: .buildozer
           key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: master
+      # Установка зависимостей и сборка с Buildozer
+      - name: Install dependencies and build with Buildozer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libgles2-mesa-dev libffi-dev
+          pip install --upgrade pip
+          pip install --user buildozer cython
+          buildozer android debug
 
+      # Загрузка артефактов (получение файла APK)
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: ./bin/*.apk
