@@ -65,3 +65,15 @@ jobs:
       - name: Push binary to data branch
         if: github.event_name == 'push'
         run: python master/.ci/move_binary.py "${{ steps.buildozer.outputs.filename }}" master data bin
+
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo for cleanup
+        uses: actions/checkout@v2
+
+      - name: Fix permissions
+        run: |
+          sudo chown -R $USER:$USER /home/runner/work/MusicPlayer/MusicPlayer
+          git config --global --add safe.directory /home/runner/work/MusicPlayer/MusicPlayer
+          git config --global --unset http.https://github.com/.extraheader
