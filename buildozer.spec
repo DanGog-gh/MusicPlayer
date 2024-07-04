@@ -85,7 +85,9 @@ android.api = 34
 android.allow_backup = True
 
 # Разрешения приложения
-android.permissions = android.permission.INTERNET, android.permission.READ_MEDIA_AUDIO, android.permission.READ_EXTERNAL_STORAGE
+android.permissions = android.permission.INTERNET,
+    android.permission.READ_MEDIA_AUDIO,
+    android.permission.READ_EXTERNAL_STORAGE
 
 # Настройка ориентации экрана
 orientation = portrait
