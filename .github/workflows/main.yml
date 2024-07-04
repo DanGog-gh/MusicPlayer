@@ -34,6 +34,18 @@ jobs:
           path: .buildozer
           key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
+      # Установка Android SDK и build-tools для API уровня 34
+      - name: Install Android SDK and build-tools
+        run: |
+          sdkmanager "platforms;android-34"
+          sdkmanager "build-tools;33.0.0"ols
+
+      # Проверка наличия Aidl
+      - name: Check for Aidl
+        run: |
+          aidl -version || true
+          which aidl || true
+
       # Установка зависимостей и сборка с Buildozer
       - name: Install dependencies and build with Buildozer
         run: |
