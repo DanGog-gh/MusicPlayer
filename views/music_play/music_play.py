@@ -445,6 +445,7 @@ class MusicPlay(MDScreen):
         # Если платформа Android - запрашиваем права на чтение SD-карты
         # и воспроизведения аудио.
         if _platform == "android":
+
             def callback(permission, results):
                 """Вызывается после подтверждения/не подтверждения прав."""
 
@@ -519,6 +520,7 @@ class MusicPlay(MDScreen):
         # Если платформа Android - запрашиваем права на чтение SD-карты
         # и воспроизведения аудио.
         if _platform == "android":
+
             def callback(permission, results):
                 """Вызывается после подтверждения/не подтверждения прав."""
 
@@ -608,16 +610,14 @@ class MusicPlay(MDScreen):
                 self.index_tracks_music += 1
             # Проверяем не превышает ли индекс длинну списка треков.
             if self.index_tracks_music < len(self.list_tracks_music):
-               self.play_music(self.list_tracks_music[self.index_tracks_music])
+                self.play_music(self.list_tracks_music[self.index_tracks_music])
             # Если включено зациклевание, устанавливаем счетчик текущего трека
             # в 0.
             else:
                 if not self.switch_tracks_manually:
                     self.index_tracks_music = 0
                 if self.loop:
-                    self.play_music(
-                        self.list_tracks_music[self.index_tracks_music]
-                    )
+                    self.play_music(self.list_tracks_music[self.index_tracks_music])
         self.switch_tracks_manually = False
 
     def play_music(self, path_to_track):
@@ -717,7 +717,7 @@ class MusicPlay(MDScreen):
             duration = self.sound.get_duration()
             if duration:
                 percent_position = (
-                        self.current_time_track / int(duration // 1000)
+                    self.current_time_track / int(duration // 1000)
                 ) * 100
             else:
                 percent_position = 0
