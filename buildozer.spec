@@ -45,6 +45,7 @@ fullscreen = 0
 # Пакеты/модули зависимостей приложения
 requirements = python3,
     android,
+    oscpy,
     kivy,
     https://github.com/kivymd/KivyMD/archive/master.zip,
     https://github.com/kvdroid/Kvdroid/archive/refs/heads/master.zip,
@@ -85,9 +86,7 @@ android.api = 34
 android.allow_backup = True
 
 # Разрешения приложения
-android.permissions = android.permission.INTERNET,
-    android.permission.READ_MEDIA_AUDIO,
-    android.permission.READ_EXTERNAL_STORAGE
+android.permissions = INTERNET, READ_MEDIA_AUDIO, READ_EXTERNAL_STORAGE, FOREGROUND_SERVICE
 
 # Настройка ориентации экрана
 orientation = portrait
@@ -95,5 +94,8 @@ orientation = portrait
 # Формат, используемый для упаковки приложения в режиме выпуска
 # (aab, apk или aar)
 android.release_artifact = apk
+
+# Перечень сервисов, которые работают в фотовом режиме
+services = Mediaplayer:service.py:foreground:sticky
 
 [buildozer]
