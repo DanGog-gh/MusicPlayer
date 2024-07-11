@@ -86,7 +86,7 @@ android.api = 34
 android.allow_backup = True
 
 # Разрешения приложения
-android.permissions = INTERNET, READ_MEDIA_AUDIO, READ_EXTERNAL_STORAGE, FOREGROUND_SERVICE
+android.permissions = android.permission.INTERNET, android.permission.READ_MEDIA_AUDIO, android.permission.READ_EXTERNAL_STORAGE, android.permission.FOREGROUND_SERVICE
 
 # Настройка ориентации экрана
 orientation = portrait
@@ -96,6 +96,7 @@ orientation = portrait
 android.release_artifact = apk
 
 # Перечень сервисов, которые работают в фотовом режиме
-services = Mediaplayer:service.py:foreground:sticky
+services = Mediaplayerservice:service.py
+#:foreground:sticky
 
 [buildozer]

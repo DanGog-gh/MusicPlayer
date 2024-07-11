@@ -57,6 +57,11 @@ class MusicList(MDScreen):
                             theme_text_color="Custom",
                             text_color="white",
                         ),
+                        # Добавить кнопку для вызова метода
+                        # on_tap_archive_music_button  класса
+                        # views.music_play.music_play.MusicPlay
+                        # Перед вызовом метода удалить все элементы списка
+                        # self.list_tracks_music класса MusicPlay.
                         type="small",
                         theme_bg_color="Custom",
                         md_bg_color=[0, 0, 0, 0],

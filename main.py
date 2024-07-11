@@ -30,6 +30,11 @@ from kivy.utils import get_color_from_hex
 from oscpy.client import OSCClient
 from oscpy.server import OSCThreadServer
 
+# Имя пакета приложения для запуска фоновой службы.
+SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
+    packagename=u'org.lesson.musicplayer',
+    servicename=u'Mediaplayerservice'
+)
 
 # Главный класс приложения.
 class MusicPlayer(MDApp):
@@ -127,15 +132,25 @@ class MusicPlayer(MDApp):
         приложения.
         """
 
+        def start_service():
+            self.service = None
+            self.server = server = OSCThreadServer()
+            server.listen(
+                address=b'localhost',
+                port=3002,
+                default=True,
+            )
+            # server.bind(b'/message', self.display_message)
+            server.bind(b'/date', self.date)
+            self.start_service()
+
         def callback(permission, results):
             """Вызывается после подтверждения/не подтверждения прав."""
 
             if all([res for res in results]):
-                server = OSCThreadServer()
-                server.listen(address=b"localhost", port=3002, default=True)
-                server.bind(b"/track_state", self.track_state)
-                self.client = OSCClient(b"localhost", 3000)
-                self.query_service_state()
+                start_service()
+
+                self.client = OSCClient(b'localhost', 3000)
             else:
                 print("Did not get all permissions", api_version)
 
@@ -146,11 +161,12 @@ class MusicPlayer(MDApp):
             # Запрашиваем права.
             permissions = [Permission.FOREGROUND_SERVICE]
             request_permissions(permissions, callback)
+        else:
+            start_service()
 
     def on_pause(self):
         """Метод вызывается, когда приложение сворачивается в трей."""
 
-        self.client.send_message(b"/service_state", [])
         return True
 
     def on_resume(self):
@@ -159,69 +175,185 @@ class MusicPlayer(MDApp):
         (свернутое состояние приложения).
         """
 
-        self.query_service_state()
+    def start_service(self):
+        """Запускает фоновую службу."""
 
-    # ---------------------------- Track Metadata -----------------------------
-
-    def track_state(self, *Args):
-        print("track_state")
-
-    # --------------------------- Состояние сервиса ---------------------------
-
-    def get_service_name(self):
-        context = mActivity.getApplicationContext()
-        return str(context.getPackageName()) + ".Service" + "Mediaplayer"
-
-    def service_is_running(self):
-        print("service_is_running")
-        service_name = self.get_service_name()
-        context = mActivity.getApplicationContext()
-        print("service_name", service_name)
-        manager = cast(
-            "android.app.ActivityManager",
-            mActivity.getSystemService(context.ACTIVITY_SERVICE),
-        )
-        print("manager", manager)
-        for service in manager.getRunningServices(100):
-            print(
-                "service.service.getClassName()",
-                service_name,
-                service.service.getClassName() == service_name,
+        if platform == 'android':
+            service = autoclass(SERVICE_NAME)
+            self.mActivity = autoclass(u'org.kivy.android.PythonActivity').mActivity
+            argument = ''
+            service.start(self.mActivity, argument)
+            self.service = service
+        elif platform in ('linux', 'linux2', 'macosx', 'win'):
+            from runpy import run_path
+            from threading import Thread
+            self.service = Thread(
+                target=run_path,
+                args=['service.py'],
+                kwargs={'run_name': '__main__'},
+                daemon=True
             )
-            if service.service.getClassName() == service_name:
-                return True
-        return False
-
-    def start_service_if_not_running(self):
-        service_is_running = self.service_is_running()
-        print("start_service_if_not_running", service_is_running)
-
-        if service_is_running:
-            return
-        service = autoclass(self.get_service_name())
-        # service.start(
-        #     mActivity, "round_music_note_white_24", "Music Service", "Started", ""
-        # )
-        service.start(mActivity, '')
-        print("START SERVICE", service)
-
-    def query_service_state(self):
-        service_is_running = self.service_is_running()
-        print("query_service_state", service_is_running)
-
-        if service_is_running:
-            print("query_service_state 1")
-            self.client.send_message(b"/service_state", [])
+            self.service.start()
         else:
-            print("query_service_state 2")
-            self.start_service_if_not_running()
-            # self.set_play()
-            # self.set_album_art(None)
+            raise NotImplementedError(
+                "service start not implemented on this platform"
+            )
 
-    # -------------------------------------------------------------------------
+    def stop_service(self):
+        """Останавливает фоновую службу."""
+
+        if self.service:
+            if platform == "android":
+                self.service.stop(self.mActivity)
+            elif platform in ('linux', 'linux2', 'macos', 'win'):
+                # The below method will not work.
+                # Need to develop a method like
+                # https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s03.html
+                self.service.stop()
+            else:
+            	raise NotImplementedError(
+                	"service start not implemented on this platform"
+            	)
+
+            self.service = None
+
+    def send(self, *args):
+        self.client.send_message(b'/ping', [])
+
+    def display_message(self, message):
+        if self.root:
+            self.root.ids.label.text += '{}\n'.format(message.decode('utf8'))
+
+    def date(self, message):
+        if self.root:
+            self.root.ids.date.text = message.decode('utf8')
 
 
 MusicPlayer().run()
 
 
-""""""
+# coding: utf8
+# __version__ = '0.2'
+#
+# from kivy.app import App
+# from kivy.lang import Builder
+# from kivy.clock import Clock
+# from kivy.utils import platform
+#
+# if platform == "android":
+#     from jnius import autoclass
+#
+# from oscpy.client import OSCClient
+# from oscpy.server import OSCThreadServer
+#
+#
+# SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
+#     packagename=u'org.lesson.musicplayer',
+#     servicename=u'Mediaplayerservice'
+# )
+#
+# KV = '''
+# BoxLayout:
+#     orientation: 'vertical'
+#     BoxLayout:
+#         size_hint_y: None
+#         height: '30sp'
+#         Button:
+#             text: 'start service'
+#             on_press: app.start_service()
+#         Button:
+#             text: 'stop service'
+#             on_press: app.stop_service()
+#
+#     ScrollView:
+#         Label:
+#             id: label
+#             size_hint_y: None
+#             height: self.texture_size[1]
+#             text_size: self.size[0], None
+#
+#     BoxLayout:
+#         size_hint_y: None
+#         height: '30sp'
+#         Button:
+#             text: 'ping'
+#             on_press: app.send()
+#         Button:
+#             text: 'clear'
+#             on_press: label.text = ''
+#         Label:
+#             id: date
+#
+# '''
+#
+# class ClientServerApp(App):
+#     def build(self):
+#         self.service = None
+#         # self.start_service()
+#
+#         self.server = server = OSCThreadServer()
+#         server.listen(
+#             address=b'localhost',
+#             port=3002,
+#             default=True,
+#         )
+#
+#         server.bind(b'/message', self.display_message)
+#         server.bind(b'/date', self.date)
+#
+#         self.client = OSCClient(b'localhost', 3000)
+#         self.root = Builder.load_string(KV)
+#         return self.root
+#
+#     def start_service(self):
+#         if platform == 'android':
+#             service = autoclass(SERVICE_NAME)
+#             self.mActivity = autoclass(u'org.kivy.android.PythonActivity').mActivity
+#             argument = ''
+#             service.start(self.mActivity, argument)
+#             self.service = service
+#
+#         elif platform in ('linux', 'linux2', 'macosx', 'win'):
+#             from runpy import run_path
+#             from threading import Thread
+#             self.service = Thread(
+#                 target=run_path,
+#                 args=['service.py'],
+#                 kwargs={'run_name': '__main__'},
+#                 daemon=True
+#             )
+#             self.service.start()
+#         else:
+#             raise NotImplementedError(
+#                 "service start not implemented on this platform"
+#             )
+#
+#     def stop_service(self):
+#         if self.service:
+#             if platform == "android":
+#                 self.service.stop(self.mActivity)
+#             elif platform in ('linux', 'linux2', 'macos', 'win'):
+#                 # The below method will not work.
+#                 # Need to develop a method like
+#                 # https://www.oreilly.com/library/view/python-cookbook/0596001673/ch06s03.html
+#                 self.service.stop()
+#             else:
+#             	raise NotImplementedError(
+#                 	"service start not implemented on this platform"
+#             	)
+#             self.service = None
+#
+#     def send(self, *args):
+#         self.client.send_message(b'/ping', [])
+#
+#     def display_message(self, message):
+#         if self.root:
+#             self.root.ids.label.text += '{}\n'.format(message.decode('utf8'))
+#
+#     def date(self, message):
+#         if self.root:
+#             self.root.ids.date.text = message.decode('utf8')
+#
+#
+# if __name__ == '__main__':
+#     ClientServerApp().run()

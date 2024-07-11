@@ -442,6 +442,9 @@ class MusicPlay(MDScreen):
             self.set_list_tracks_music(uri_list)
             Clock.schedule_once(on_select_directory, 0.2)
 
+        # Ввести переменную is_tracks_selected и присвоить ей логическое
+        # значение не пуст ли список self.list_tracks_music.
+
         # Если платформа Android - запрашиваем права на чтение SD-карты
         # и воспроизведения аудио.
         if _platform == "android":
@@ -460,6 +463,10 @@ class MusicPlay(MDScreen):
             from android.permissions import Permission, request_permissions
             from android import api_version
 
+            # Если is_tracks_selected это ложь, тогда открываем диалог для
+            # директории музыки. Если истина переключаем экран со списком
+            # треков.
+
             # Запрашиваем права.
             permissions = [
                 (
@@ -470,6 +477,9 @@ class MusicPlay(MDScreen):
             ]
             request_permissions(permissions, callback)
         elif _platform == "desktop":
+            # Если is_tracks_selected это ложь, тогда открываем диалог для
+            # директории музыки. Если истина переключаем экран со списком
+            # треков.
             file_manager = MDFileManager(
                 exit_manager=exit_manager,
                 select_path=on_select_directory,
