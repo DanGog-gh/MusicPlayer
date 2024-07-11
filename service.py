@@ -28,6 +28,7 @@ class Mediaplayer:
         self.paused = False
 
         # UI events
+        self.server.bind(b'/track_position', self.track_position)
         self.server.bind(b'/add_playlist', self.add_playlist)
         self.server.bind(b'/terminate', self.terminate)
         self.server.bind(b'/play', self.play)
@@ -41,9 +42,16 @@ class Mediaplayer:
 
         # Loop
         while self.loop_running:
-            sleep(0.1)
+            sleep(1)
             print("Server loop_running")
+
         self.mService.stopSelf()
+
+    def track_position(self, interval):
+        """
+        Метод вызывается каждую секунду и устанавливает значение прогресса
+        индикатора текущей длинны трека в процентном соотношении.
+        """
 
     ##################
     # Event Actions

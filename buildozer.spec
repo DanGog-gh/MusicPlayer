@@ -95,7 +95,7 @@ orientation = portrait
 # (aab, apk или aar)
 android.release_artifact = apk
 
-# Перечень сервисов, которые работают в фотовом режиме
+# Перечень сервисов, которые работают в фоновом режиме
 services = Mediaplayer:service.py:foreground:sticky
 
 [buildozer]
