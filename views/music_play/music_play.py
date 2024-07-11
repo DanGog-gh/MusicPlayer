@@ -345,7 +345,6 @@ class MusicPlay(MDScreen):
         """Метод вызывается при клике по кнопке 'skip-previous'."""
 
         print("on_tap_skip_previous_button", self.index_tracks_music)
-        # FIXME: при переключении треки воспроизводятся синхронно.
         if self.track_or_directory_music == "archive":
             if self.index_tracks_music == 0:
                 self.index_tracks_music = len(self.list_tracks_music) - 1
@@ -359,7 +358,6 @@ class MusicPlay(MDScreen):
         """Метод вызывается при клике по кнопке 'skip-next'."""
 
         print("on_tap_skip_next_button")
-        # FIXME: при переключении треки воспроизводятся синхронно.
         if self.track_or_directory_music == "archive":
             self.index_tracks_music += 1
             # if self.index_tracks_music >= 0:
@@ -431,9 +429,14 @@ class MusicPlay(MDScreen):
                     instance_music_list = screen_manager.get_screen("music list")
                     instance_music_list.create_music_list(self.list_tracks_music)
                 else:
-                    # TODO: Добавить вывод сообщение MDSnackbar -
-                    #  https://kivymd.readthedocs.io/en/latest/components/snackbar/
-                    print("В директории нет музыкальных файлов")
+                    MDSnackbar(
+                        MDSnackbarText(
+                            text="В директории нет музыкальных файлов",
+                        ),
+                        y=dp(24),
+                        pos_hint={"center_x": 0.5},
+                        size_hint_x=0.5,
+                    ).open()
 
                 if _platform == "desktop":
                     file_manager.close()
@@ -442,8 +445,10 @@ class MusicPlay(MDScreen):
             self.set_list_tracks_music(uri_list)
             Clock.schedule_once(on_select_directory, 0.2)
 
-        # Ввести переменную is_tracks_selected и присвоить ей логическое
-        # значение не пуст ли список self.list_tracks_music.
+        is_tracks_selected = bool(self.list_tracks_music)
+
+        # TODO: Ввести переменную is_tracks_selected и присвоить ей логическое значение не пуст ли
+        #  список self.list_tracks_music.
 
         # Если платформа Android - запрашиваем права на чтение SD-карты
         # и воспроизведения аудио.
@@ -463,29 +468,34 @@ class MusicPlay(MDScreen):
             from android.permissions import Permission, request_permissions
             from android import api_version
 
-            # Если is_tracks_selected это ложь, тогда открываем диалог для
-            # директории музыки. Если истина переключаем экран со списком
-            # треков.
-
-            # Запрашиваем права.
-            permissions = [
-                (
-                    Permission.READ_EXTERNAL_STORAGE
-                    if api_version < 33
-                    else Permission.READ_MEDIA_AUDIO
-                )
-            ]
-            request_permissions(permissions, callback)
+            # TODO: Если is_tracks_selected это ложь, тогда открываем диалог для выбора директории музыки.
+            #  Если истина, переключаем экран со списком треков.
+            if not is_tracks_selected:
+                # Запрашиваем права.
+                permissions = [
+                    (
+                        Permission.READ_EXTERNAL_STORAGE
+                        if api_version < 33
+                        else Permission.READ_MEDIA_AUDIO
+                    )
+                ]
+                request_permissions(permissions, callback)
+            else:
+                screen_manager = MDApp.get_running_app().screen_manager
+                screen_manager.current = "music list"
         elif _platform == "desktop":
-            # Если is_tracks_selected это ложь, тогда открываем диалог для
-            # директории музыки. Если истина переключаем экран со списком
-            # треков.
-            file_manager = MDFileManager(
-                exit_manager=exit_manager,
-                select_path=on_select_directory,
-                search="dirs",
-            )
-            file_manager.show(MDApp.get_running_app().user_data_dir)
+            # TODO: Если is_tracks_selected это ложь, тогда открываем диалог для выбора директории музыки.
+            #  Если истина, переключаем экран со списком треков.
+            if not is_tracks_selected:
+                file_manager = MDFileManager(
+                    exit_manager=exit_manager,
+                    select_path=on_select_directory,
+                    search="dirs",
+                )
+                file_manager.show(MDApp.get_running_app().user_data_dir)
+            else:
+                screen_manager = MDApp.get_running_app().screen_manager
+                screen_manager.current = "music list"
 
     def on_tap_shuffle_button(self, instance, *args):
         if not self.list_tracks_music:
@@ -701,7 +711,7 @@ class MusicPlay(MDScreen):
     def track_position(self, interval):
         """
         Метод вызывается каждую секунду и устанавливает значение прогресса
-        индикатора текущей длинны трека в процентном соотношении.
+        индикатора текущей длины трека в процентном соотношении.
         """
 
         if self.current_time_track == 0:

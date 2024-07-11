@@ -100,4 +100,3 @@ services = Mediaplayerservice:service.py
 #:foreground:sticky
 
 [buildozer]
-

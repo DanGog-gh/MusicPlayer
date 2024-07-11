@@ -35,3 +35,4 @@ if __name__ == '__main__':
         sleep(1)
         print("SERVER IS RUNNING")
         send_date()
+

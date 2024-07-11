@@ -232,6 +232,7 @@ class MusicPlayer(MDApp):
 MusicPlayer().run()
 
 
+
 # coding: utf8
 # __version__ = '0.2'
 #

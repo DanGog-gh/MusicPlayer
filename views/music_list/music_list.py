@@ -7,7 +7,7 @@ from kivymd.uix.appbar import (
     MDTopAppBar,
     MDTopAppBarLeadingButtonContainer,
     MDActionTopAppBarButton,
-    MDTopAppBarTitle,
+    MDTopAppBarTitle, MDTopAppBarTrailingButtonContainer,
 )
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.fitimage import FitImage
@@ -48,25 +48,32 @@ class MusicList(MDScreen):
                                 icon="arrow-left",
                                 pos_hint={"center_y": 1.4},
                                 theme_icon_color="Custom",
-                                icon_color="white",
+                                icon_color="white"
                             )
                         ),
                         MDTopAppBarTitle(
                             id="current tracks directory",
                             pos_hint={"center_x": 0.4, "center_y": 1.4},
                             theme_text_color="Custom",
-                            text_color="white",
+                            text_color="white"
                         ),
-                        # Добавить кнопку для вызова метода
-                        # on_tap_archive_music_button  класса
-                        # views.music_play.music_play.MusicPlay
-                        # Перед вызовом метода удалить все элементы списка
-                        # self.list_tracks_music класса MusicPlay.
+                        MDTopAppBarTrailingButtonContainer(
+                            MDActionTopAppBarButton(
+                                # on_release=
+                                icon="folder-plus-outline",
+                                pos_hint={"center_y": 1.4},
+                                theme_icon_color="Custom",
+                                icon_color="white"
+                            )
+                        ),
+                        # Добавить кнопку для вызова метода on_tap_archive_music_button из класса
+                        # views/music_play/music.play.MusicPlay.
+                        # Перед вызовом метода удалить все элементы списка self.list_tracks_music класса MusicPlay.
                         type="small",
                         theme_bg_color="Custom",
                         md_bg_color=[0, 0, 0, 0],
                         theme_shadow_color="Custom",
-                        shadow_color=[0, 0, 0, 0],
+                        shadow_color=[0, 0, 0, 0]
                     ),
                     MDLabel(
                         id="number track label",
@@ -77,11 +84,11 @@ class MusicList(MDScreen):
                         adaptive_size=True,
                         pos_hint={"center_y": 0.40},
                         font_style="TransformBold",
-                        role="small",
+                        role="small"
                     ),
                     size_hint_y=None,
                     height=dp(145),
-                    md_bg_color="#1e0438",
+                    md_bg_color="#1e0438"
                 ),
                 # TODO: использовать RecycleView вместо ScrollView.
                 MDScrollView(
@@ -91,13 +98,13 @@ class MusicList(MDScreen):
                         md_bg_color="#1e0438",
                         padding=dp(18),
                         spacing=dp(18),
-                        adaptive_height=True,
+                        adaptive_height=True
                     ),
                     bar_width=0,
                     md_bg_color="#1e0438",
-                    do_scroll_x=False,
+                    do_scroll_x=False
                 ),
-                orientation="vertical",
+                orientation="vertical"
             ),
         )
 
